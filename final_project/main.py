@@ -2,9 +2,9 @@ import sqlite3
 from contextlib import contextmanager
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException # pyright: ignore[reportMissingImports]
+from fastapi.responses import HTMLResponse # pyright: ignore[reportMissingImports]
+from pydantic import BaseModel # pyright: ignore[reportMissingImports]
 
 DB_PATH = "db.sqlite"
 
@@ -33,16 +33,25 @@ async def custom_swagger_ui():
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; background: #0a0a0a; }
-    .swagger-ui .topbar { background: #0a0a0a; border-bottom: 1px solid #1f1f1f; padding: 12px 24px; }
+    .swagger-ui .topbar { background: #0a0a0a; border-bottom: 1px solid #1f1f1f; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; }
     .swagger-ui .topbar .download-url-wrapper { display: none; }
-    .swagger-ui .topbar-wrapper img { display: none; }
-    .swagger-ui .topbar-wrapper a { display: none; }
+    .swagger-ui .topbar .topbar-wrapper img { display: none; }
+    .swagger-ui .topbar .topbar-wrapper a { display: none; }
+    .swagger-ui .topbar-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; }
     .swagger-ui .topbar-wrapper::before {
       content: 'Dosa Restaurant API';
-      font-family: 'Georgia', serif;
+      font-family: 'Times New Roman', Times, serif;
       font-size: 20px;
       font-style: italic;
       color: #e8834a;
+      letter-spacing: 0.02em;
+      flex: 1;
+    }
+    .swagger-ui .topbar-wrapper::after {
+      content: 'Abhiram Panuganti (ap3364)  ·  ap3364@njit.edu';
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 13px;
+      color: #888;
       letter-spacing: 0.02em;
     }
     .swagger-ui { background: #0a0a0a; color: #d4d0c8; font-family: 'Helvetica Neue', sans-serif; }
@@ -164,7 +173,7 @@ class ItemOut(ItemIn):
 class OrderIn(BaseModel):
     customer_id: int
     timestamp: Optional[int] = None
-    notes: Optional[str] = ""
+    notes: Optional[str] = None
 
 class OrderOut(OrderIn):
     id: int
@@ -190,7 +199,7 @@ def get_customer(id: int):
         row = con.execute("SELECT * FROM customers WHERE id = ?", (id,)).fetchone()
     if row is None:
         raise HTTPException(status_code=404, detail="Customer not found")
-    return CustomerOut(**row)
+    return CustomerOut(**dict(row))
 
 
 @app.put("/customers/{id}", response_model=CustomerOut)
@@ -233,7 +242,7 @@ def get_item(id: int):
         row = con.execute("SELECT * FROM items WHERE id = ?", (id,)).fetchone()
     if row is None:
         raise HTTPException(status_code=404, detail="Item not found")
-    return ItemOut(**row)
+    return ItemOut(**dict(row))
 
 
 @app.put("/items/{id}", response_model=ItemOut)
@@ -278,7 +287,7 @@ def get_order(id: int):
         row = con.execute("SELECT * FROM orders WHERE id = ?", (id,)).fetchone()
     if row is None:
         raise HTTPException(status_code=404, detail="Order not found")
-    return OrderOut(**row)
+    return OrderOut(**dict(row))
 
 
 @app.put("/orders/{id}", response_model=OrderOut)
