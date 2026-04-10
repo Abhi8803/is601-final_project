@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException # pyright: ignore[reportMissingImports]
-from fastapi.responses import HTMLResponse # pyright: ignore[reportMissingImports]
+from fastapi.responses import HTMLResponse, RedirectResponse # pyright: ignore[reportMissingImports]
 from pydantic import BaseModel # pyright: ignore[reportMissingImports]
 
 DB_PATH = "db.sqlite"
@@ -14,6 +14,15 @@ app = FastAPI(
     docs_url=None,
     redoc_url=None,
 )
+
+
+# ------------------------------------------------------------------ #
+# Root redirect                                                        #
+# ------------------------------------------------------------------ #
+
+@app.get("/", include_in_schema=False)
+def root():
+    return RedirectResponse(url="/docs")
 
 
 # ------------------------------------------------------------------ #
